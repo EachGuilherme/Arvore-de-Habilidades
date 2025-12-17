@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🌳 Árvore de Habilidades</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <div class="container-principal">
+    <svg id="arvore"></svg>
+
+    <div id="painel">
+      <h2>⚔️ Status</h2>
+
+      <div class="stat-group">
+        <label>💰 TP Disponível:</label>
+        <div class="tp-display" id="tp">100</div>
+      </div>
+
+      <div class="stat-group">
+        <label><strong>📊 Stats Base:</strong></label>
+        
+        <label class="stat">
+          STR (Força):
+          <input type="number" id="str" min="0" max="99" value="0">
+        </label>
+        
+        <label class="stat">
+          DEX (Destreza):
+          <input type="number" id="dex" min="0" max="99" value="0">
+        </label>
+        
+        <label class="stat">
+          CON (Constituição):
+          <input type="number" id="con" min="0" max="99" value="0">
+        </label>
+        
+        <label class="stat">
+          WIL (Vontade):
+          <input type="number" id="wil" min="0" max="99" value="0">
+        </label>
+        
+        <label class="stat">
+          MND (Mente):
+          <input type="number" id="mnd" min="0" max="99" value="0">
+        </label>
+        
+        <label class="stat">
+          SPI (Espírito):
+          <input type="number" id="spi" min="0" max="99" value="0">
+        </label>
+      </div>
+
+      <div class="stat-group">
+        <label><strong>🎯 Progresso dos Tiers:</strong></label>
+        <div id="tiers-progress"></div>
+      </div>
+
+      <div class="stat-group">
+        <button id="btn-relatorio" class="btn btn-info">📋 Relatório</button>
+        <button id="btn-exportar" class="btn btn-export">📥 Exportar</button>
+        <button id="btn-reset-view" class="btn btn-info">🔍 Resetar Visão</button>
+        <button id="btn-reset" class="btn btn-danger">🔄 Resetar</button>
+      </div>
+
+      <div class="stat-group">
+        <label><small>💡 Dicas:<br>• Clique nas skills para desbloquear<br>• Arraste para mover a visão (pan)<br>• Use scroll para zoom<br>• Altere os stats para criar pré-requisitos</small></label>
+      </div>
+    </div>
+  </div>
+
+  <!-- Barra de navegação de Tiers -->
+  <div id="tier-navigation" class="tier-navigation">
+    <div id="tier-buttons" class="tier-buttons"></div>
+  </div>
+
+  <div id="tooltip" class="tooltip"></div>
+
+  <script src="data/Tiers/tier0.js"></script>
+  <script src="data/Tiers/tier1.js"></script>
+  <script src="data/Tiers/tier2.js"></script>
+  <script src="data/Tiers/tier3.js"></script>
+  <script src="data/Tiers/tier4.js"></script>
+  <script src="data/Tiers/tier5.js"></script>
+  <script src="data/habilidades.js"></script>
+  <script src="modules/sistema-tiers.js"></script>
+  <script src="modules/sistema-locks.js"></script>
+  <script src="modules/sistema-save.js"></script>
+  <script src="script.js"></script>
+
+</body>
+
+</html>

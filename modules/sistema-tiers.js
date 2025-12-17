@@ -1,0 +1,88 @@
+class SistemaTiers {
+  constructor() {
+    this.config = CONFIG;
+  }
+
+  getProgressoTier(tier) {
+    const skills = getSkillsPorTier(tier);
+    const desbloqueadas = skills.filter(s => s.desbloqueada).length;
+    const total = skills.length;
+    const percentual = total > 0 ? (desbloqueadas / total) * 100 : 0;
+
+    return {
+      tier: tier,
+      total: total,
+      desbloqueadas: desbloqueadas,
+      percentual: percentual.toFixed(1),
+      proximaTela: `${desbloqueadas}/${total} (${percentual.toFixed(1)}%)`,
+      alcancouRequisito: percentual >= this.config.TIER_UNLOCK_PERCENTAGE
+    };
+  }
+
+  getProgressoTodos() {
+    const tiers = [];
+    for (let i = 0; i < this.config.TIERS_TOTAL; i++) {
+      tiers.push(this.getProgressoTier(i));
+    }
+    return tiers;
+  }
+
+  isTierDesbloqueado(tier) {
+    if (tier === 0) return true;
+
+    // Um tier está desbloqueado quando o tier anterior (tier - 1) atinge 40%
+    // Por exemplo: Tier 1 é desbloqueado quando Tier 0 atinge 40%
+    const tierAnterior = tier - 1;
+    const progresso = this.getProgressoTier(tierAnterior);
+    
+    // Verificar se o tier anterior atingiu 40%
+    const percentualRequerido = this.config.TIER_UNLOCK_PERCENTAGE;
+    return parseFloat(progresso.percentual) >= percentualRequerido;
+  }
+
+  getProximoTierParaDesbloquear() {
+    for (let i = 0; i < this.config.TIERS_TOTAL; i++) {
+      if (!this.isTierDesbloqueado(i)) {
+        return {
+          tier: i,
+          proximoDesbloqueio: i - 1,
+          percentualRequerido: this.config.TIER_UNLOCK_PERCENTAGE,
+          percentualAtual: this.getProgressoTier(i - 1).percentual
+        };
+      }
+    }
+    return null;
+  }
+
+  getResumoProgressao() {
+    const tiers = this.getProgressoTodos();
+    let resumo = '\n🎯 PROGRESSO POR TIER:\n';
+    resumo += '================================\n';
+
+    tiers.forEach(tier => {
+      const desbloqueado = this.isTierDesbloqueado(tier.tier) ? '✅' : '🔒';
+      const barra = this._gerarBarraProgresso(tier.percentual);
+      resumo += `${desbloqueado} Tier ${tier.tier}: ${barra} ${tier.proximaTela}\n`;
+    });
+
+    resumo += '================================\n';
+
+    const proximo = this.getProximoTierParaDesbloquear();
+    if (proximo) {
+      resumo += `\n⚡ Próximo Tier (${proximo.tier}) em: ${(100 - proximo.percentualAtual).toFixed(1)}%\n`;
+    } else {
+      resumo += '\n🌟 Todos os Tiers desbloqueados!\n';
+    }
+
+    return resumo;
+  }
+
+  _gerarBarraProgresso(percentual) {
+    const percentNum = parseFloat(percentual);
+    const cheio = Math.round(percentNum / 5);
+    const vazio = 20 - cheio;
+    return '[' + '█'.repeat(cheio) + '░'.repeat(vazio) + ']';
+  }
+}
+
+console.log('📊 Módulo de Tiers carregado!');

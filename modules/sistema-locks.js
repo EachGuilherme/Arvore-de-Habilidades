@@ -1,0 +1,111 @@
+class SistemaLocks {
+  constructor(statsJogador, tpAtual) {
+    this.stats = statsJogador;
+    this.tp = tpAtual;
+  }
+
+  podeDesbloquear(skillId, todasSkills) {
+    const skill = getSkillPorId(skillId);
+    if (!skill) return { pode: false, motivo: '❌ Skill não encontrada' };
+    if (skill.desbloqueada) return { pode: false, motivo: '✅ Já desbloqueada' };
+
+    if (this.tp < skill.custoTP) {
+      const faltam = skill.custoTP - this.tp;
+      return { pode: false, motivo: `❌ TP insuficiente (faltam ${faltam} TP)` };
+    }
+
+    const statsCheck = this._verificarStats(skill.statsMin);
+    if (!statsCheck.ok) {
+      return { pode: false, motivo: `❌ Stats insuficientes: ${statsCheck.detalhes}` };
+    }
+
+    const prereqCheck = this._verificarPrereqSkills(skill.prereqSkills, todasSkills);
+    if (!prereqCheck.ok) {
+      return { pode: false, motivo: `❌ Pré-requisitos: ${prereqCheck.detalhes}` };
+    }
+
+    const tierCheck = this._verificarPrereqTier(skill.prereqTier);
+    if (!tierCheck.ok) {
+      return { pode: false, motivo: `❌ ${tierCheck.detalhes}` };
+    }
+
+    return { pode: true, motivo: '✅ Pode desbloquear!' };
+  }
+
+  _verificarStats(statsMin) {
+    const statsInsuficientes = [];
+    Object.entries(statsMin).forEach(([stat, valorMinimo]) => {
+      if (this.stats[stat] < valorMinimo) {
+        const atual = this.stats[stat] || 0;
+        statsInsuficientes.push(`${stat} (tem ${atual}, precisa ${valorMinimo})`);
+      }
+    });
+
+    if (statsInsuficientes.length > 0) {
+      return { ok: false, detalhes: statsInsuficientes.join(', ') };
+    }
+    return { ok: true, detalhes: '' };
+  }
+
+  _verificarPrereqSkills(prereqSkills, todasSkills) {
+    const naoDesbloqueadas = [];
+    prereqSkills.forEach(skillId => {
+      const skill = getSkillPorId(skillId);
+      if (!skill || !skill.desbloqueada) {
+        naoDesbloqueadas.push(skill?.nome || skillId);
+      }
+    });
+
+    if (naoDesbloqueadas.length > 0) {
+      return { ok: false, detalhes: naoDesbloqueadas.join(', ') };
+    }
+    return { ok: true, detalhes: '' };
+  }
+
+  _verificarPrereqTier(tierMinimo) {
+    if (tierMinimo === -1) return { ok: true, detalhes: '' };
+
+    // Verificar se o tier anterior tem 40% de progresso
+    // tierMinimo é o tier que precisa de 40% de progresso
+    // NÃO devemos usar isTierDesbloqueado() pois causa confusão
+    const sistemaTiers = new SistemaTiers();
+    const progresso = sistemaTiers.getProgressoTier(tierMinimo);
+    
+    if (parseFloat(progresso.percentual) < 40) {
+      return { ok: false, detalhes: `Tier ${tierMinimo} precisa de 40% de progresso (atualmente ${progresso.percentual}%)` };
+    }
+    
+    return { ok: true, detalhes: '' };
+  }
+
+  tentar_desbloquear(skillId) {
+    const verificacao = this.podeDesbloquear(skillId, HABILIDADES);
+
+    if (!verificacao.pode) {
+      return { sucesso: false, mensagem: verificacao.motivo };
+    }
+
+    const skill = getSkillPorId(skillId);
+    skill.desbloqueada = true;
+    this.tp -= skill.custoTP;
+
+    return { sucesso: true, mensagem: `🎉 ${skill.nome} desbloqueada! (-${skill.custoTP} TP)` };
+  }
+
+  getMotivoTranca(skillId) {
+    const verificacao = this.podeDesbloquear(skillId, HABILIDADES);
+    return verificacao.motivo;
+  }
+
+  getCorSkill(skillId) {
+    const skill = getSkillPorId(skillId);
+    if (skill.desbloqueada) return '#4CAF50';
+
+    const verificacao = this.podeDesbloquear(skillId, HABILIDADES);
+    if (verificacao.pode) return '#FFC107';
+
+    return '#666666';
+  }
+}
+
+console.log('🔒 Módulo de Locks carregado!');
