@@ -104,10 +104,61 @@ function desenharArvore() {
   // Desenhar conexões
   desenharConexoesTier(g, skillsDoTier);
 
-  // Desenhar skills em layout radial
-  desenharSkillsRadial(g, skillsDoTier);
+  // Usar layout específico por tier
+  if (tierAtual === 0) {
+    // Layout EXPLOSIVO para Tier 0
+    desenharSkillsExplosivo(g, skillsDoTier);
+  } else {
+    // Layout RADIAL para os outros tiers
+    desenharSkillsRadial(g, skillsDoTier);
+  }
 
   svg.appendChild(g);
+}
+
+// ========== NOVO LAYOUT: EXPLOSIVO/DINÂMICO ==========
+function desenharSkillsExplosivo(container, skills) {
+  const centerX = CONFIG.CANVAS_WIDTH / 2;
+  const centerY = CONFIG.CANVAS_HEIGHT / 2;
+  
+  // Parâmetros de expansão
+  const raioBase = 100;           // Início mais próximo do centro
+  const raioIncremento = 140;     // Maior espaçamento entre anéis
+  const skillsPorNivel = 3;        // 3 skills por anel (mais orgorgânico)
+  const offsetRotacao = Math.PI / 3;  // Rotação entre anéis para parecer explosivo
+  
+  // Agrupar skills por nível
+  const niveis = {};
+  skills.forEach((skill, indice) => {
+    const nivel = Math.floor(indice / skillsPorNivel);
+    if (!niveis[nivel]) niveis[nivel] = [];
+    niveis[niveis[nivel]] = skill;
+    niveis[nivel].push(skill);
+  });
+  
+  // Desenhar cada nível com rotação dinâmica
+  Object.keys(niveis).forEach(nivel => {
+    const skillsNivel = niveis[nivel];
+    const raioDeste = raioBase + (nivel * raioIncremento);
+    
+    // Distribuir skills nesse anel
+    const anguloPorSkill = (2 * Math.PI) / skillsNivel.length;
+    
+    // IMPORTANTE: Rotacionar cada anel para criar efeito explosivo
+    const rotacaoNivel = nivel * offsetRotacao;
+    
+    skillsNivel.forEach((skill, indice) => {
+      const angulo = indice * anguloPorSkill + rotacaoNivel;
+      
+      const x = centerX + raioDeste * Math.cos(angulo);
+      const y = centerY + raioDeste * Math.sin(angulo);
+      
+      skill.x = x;
+      skill.y = y;
+      
+      desenharSkill(container, skill);
+    });
+  });
 }
 
 function desenharSkillsRadial(container, skills) {
