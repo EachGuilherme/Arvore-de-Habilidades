@@ -1,3 +1,6 @@
+const { getSkillPorId, HABILIDADES } = require('../data/habilidades');
+const { SistemaTiers } = require('./sistema-tiers');
+
 class SistemaLocks {
   constructor(statsJogador, tpAtual) {
     this.stats = statsJogador;
@@ -65,14 +68,15 @@ class SistemaLocks {
   _verificarPrereqTier(tierMinimo) {
     if (tierMinimo === -1) return { ok: true, detalhes: '' };
 
-    // Verificar se o tier anterior tem 40% de progresso
-    // tierMinimo é o tier que precisa de 40% de progresso
+    // Verificar se o tier anterior tem a porcentagem de progresso necessária
+    // tierMinimo é o tier que precisa de progresso para desbloquear o próximo tier
     // NÃO devemos usar isTierDesbloqueado() pois causa confusão
     const sistemaTiers = new SistemaTiers();
     const progresso = sistemaTiers.getProgressoTier(tierMinimo);
     
-    if (parseFloat(progresso.percentual) < 40) {
-      return { ok: false, detalhes: `Tier ${tierMinimo} precisa de 40% de progresso (atualmente ${progresso.percentual}%)` };
+    const percentualRequerido = sistemaTiers.config.TIER_UNLOCK_PERCENTAGES[tierMinimo + 1];
+    if (parseFloat(progresso.percentual) < percentualRequerido) {
+      return { ok: false, detalhes: `Tier ${tierMinimo} precisa de ${percentualRequerido}% de progresso (atualmente ${progresso.percentual}%)` };
     }
     
     return { ok: true, detalhes: '' };
@@ -109,3 +113,4 @@ class SistemaLocks {
 }
 
 console.log('🔒 Módulo de Locks carregado!');
+module.exports = { SistemaLocks };

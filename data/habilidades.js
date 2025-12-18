@@ -19,7 +19,14 @@ const HABILIDADES = []
 
 const CONFIG = {
   TIERS_TOTAL: 6,
-  TIER_UNLOCK_PERCENTAGE: 40,
+  // Nova configuração de porcentagens de desbloqueio por tier
+  TIER_UNLOCK_PERCENTAGES: {
+    1: 20, // Tier 1 desbloqueia com 20% do Tier 0
+    2: 40, // Tier 2 desbloqueia com 40% do Tier 1
+    3: 60, // Tier 3 desbloqueia com 60% do Tier 2
+    4: 80, // Tier 4 desbloqueia com 80% do Tier 3
+    5: 90, // Tier 5 desbloqueia com 90% do Tier 4
+  },
   TP_INICIAL: 100,
   CANVAS_WIDTH: 2400,
   CANVAS_HEIGHT: 1600,
@@ -98,3 +105,13 @@ function getDescricaoPrereqs(skillId) {
 calcularLayoutAutomatico();
 
 console.log('📚 Arquivo de dados carregado com 60 habilidades!');
+
+module.exports = {
+  HABILIDADES,
+  CONFIG,
+  getSkillsPorTier,
+  getSkillPorId,
+  getQtdDesbloqueadasPorTier,
+  getPercentualTier,
+  getDescricaoPrereqs,
+};

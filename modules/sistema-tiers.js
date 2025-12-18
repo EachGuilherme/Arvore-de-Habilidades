@@ -1,3 +1,5 @@
+const { CONFIG, getSkillsPorTier } = require('../data/habilidades');
+
 class SistemaTiers {
   constructor() {
     this.config = CONFIG;
@@ -15,7 +17,7 @@ class SistemaTiers {
       desbloqueadas: desbloqueadas,
       percentual: percentual.toFixed(1),
       proximaTela: `${desbloqueadas}/${total} (${percentual.toFixed(1)}%)`,
-      alcancouRequisito: percentual >= this.config.TIER_UNLOCK_PERCENTAGE
+      alcancouRequisito: percentual >= this.config.TIER_UNLOCK_PERCENTAGES[tier + 1]
     };
   }
 
@@ -30,13 +32,13 @@ class SistemaTiers {
   isTierDesbloqueado(tier) {
     if (tier === 0) return true;
 
-    // Um tier está desbloqueado quando o tier anterior (tier - 1) atinge 40%
-    // Por exemplo: Tier 1 é desbloqueado quando Tier 0 atinge 40%
+    // Um tier está desbloqueado quando o tier anterior (tier - 1) atinge a porcentagem requerida
+    // Por exemplo: Tier 1 é desbloqueado quando Tier 0 atinge 20%
     const tierAnterior = tier - 1;
     const progresso = this.getProgressoTier(tierAnterior);
     
-    // Verificar se o tier anterior atingiu 40%
-    const percentualRequerido = this.config.TIER_UNLOCK_PERCENTAGE;
+    // Verificar se o tier anterior atingiu a porcentagem requerida para o próximo tier
+    const percentualRequerido = this.config.TIER_UNLOCK_PERCENTAGES[tier];
     return parseFloat(progresso.percentual) >= percentualRequerido;
   }
 
@@ -46,7 +48,7 @@ class SistemaTiers {
         return {
           tier: i,
           proximoDesbloqueio: i - 1,
-          percentualRequerido: this.config.TIER_UNLOCK_PERCENTAGE,
+          percentualRequerido: this.config.TIER_UNLOCK_PERCENTAGES[proximo.tier],
           percentualAtual: this.getProgressoTier(i - 1).percentual
         };
       }
@@ -86,3 +88,4 @@ class SistemaTiers {
 }
 
 console.log('📊 Módulo de Tiers carregado!');
+module.exports = { SistemaTiers };
