@@ -106,8 +106,8 @@ function desenharArvore() {
 
   // Usar layout específico por tier
   if (tierAtual === 0) {
-    // Layout EXPLOSIVO para Tier 0
-    desenharSkillsExplosivo(g, skillsDoTier);
+    // Layout ÁRVORE COM GALHOS para Tier 0
+    desenharSkillsArvoreGalhos(g, skillsDoTier);
   } else {
     // Layout RADIAL para os outros tiers
     desenharSkillsRadial(g, skillsDoTier);
@@ -116,50 +116,62 @@ function desenharArvore() {
   svg.appendChild(g);
 }
 
-// ========== NOVO LAYOUT: EXPLOSIVO/DINÂMICO ==========
-function desenharSkillsExplosivo(container, skills) {
+// ========== NOVO LAYOUT: ÁRVORE COM GALHOS ORGÂNICOS ==========
+function desenharSkillsArvoreGalhos(container, skills) {
   const centerX = CONFIG.CANVAS_WIDTH / 2;
-  const centerY = CONFIG.CANVAS_HEIGHT / 2;
+  const centerY = CONFIG.CANVAS_HEIGHT - 200;  // Começa bem embaixo
   
-  // Parâmetros de expansão
-  const raioBase = 100;           // Início mais próximo do centro
-  const raioIncremento = 140;     // Maior espaçamento entre anéis
-  const skillsPorNivel = 3;       // 3 skills por anel (mais orgânico)
-  const offsetRotacao = Math.PI / 3;  // Rotação entre anéis para parecer explosivo
+  // Raiz no centro embaixo
+  const raizSkill = skills[0];
+  if (raizSkill) {
+    raizSkill.x = centerX;
+    raizSkill.y = centerY;
+    desenharSkill(container, raizSkill);
+  }
   
-  // Agrupar skills por nível - CORRETO
-  const niveis = {};
-  skills.forEach((skill, indice) => {
-    const nivel = Math.floor(indice / skillsPorNivel);
-    if (!niveis[nivel]) {
-      niveis[nivel] = [];
-    }
-    niveis[nivel].push(skill);
-  });
+  // Distribuir o resto em camadas (como galhos crescendo pra cima)
+  const skillsRestantes = skills.slice(1);
+  const camadas = Math.ceil(Math.sqrt(skillsRestantes.length));
   
-  // Desenhar cada nível com rotação dinâmica
-  Object.keys(niveis).forEach(nivel => {
-    const skillsNivel = niveis[nivel];
-    const raioDeste = raioBase + (nivel * raioIncremento);
+  let skillIndex = 0;
+  
+  for (let camada = 1; camada <= camadas; camada++) {
+    // Quanto mais longe da raiz, mais espaço horizontal
+    const skillsPorCamada = Math.ceil(skillsRestantes.length / camadas);
+    const yPos = centerY - (camada * 280);  // Cada camada sobe 280px
     
-    // Distribuir skills nesse anel
-    const anguloPorSkill = (2 * Math.PI) / skillsNivel.length;
+    // Número de skills nesta camada
+    const skillsNestaCamada = Math.min(
+      skillsPorCamada,
+      skillsRestantes.length - skillIndex
+    );
     
-    // IMPORTANTE: Rotacionar cada anel para criar efeito explosivo
-    const rotacaoNivel = nivel * offsetRotacao;
+    // Largura da distribuição aumenta com as camadas (efeito de expansão)
+    const larguraBase = 300 + (camada * 200);
+    const anguloMax = Math.PI / (camada + 1);  // Diminui ângulo conforme sobe
     
-    skillsNivel.forEach((skill, indice) => {
-      const angulo = indice * anguloPorSkill + rotacaoNivel;
+    for (let i = 0; i < skillsNestaCamada; i++) {
+      const skill = skillsRestantes[skillIndex];
+      if (!skill) break;
       
-      const x = centerX + raioDeste * Math.cos(angulo);
-      const y = centerY + raioDeste * Math.sin(angulo);
+      // Distribuição horizontal NÃO-LINEAR
+      // Usa seno para criar padrão mais orgânico (menos linear)
+      const posicaoRelativa = (i / (skillsNestaCamata - 1)) * 2 - 1;  // -1 a 1
+      const sinValor = Math.sin(posicaoRelativa * anguloMax);
       
-      skill.x = x;
-      skill.y = y;
+      // Adiciona aleatoriedade pequena para parecer mais natural
+      const ruido = (Math.random() - 0.5) * 50;
+      
+      const xPos = centerX + (sinValor * larguraBase) + ruido;
+      const yPos_atual = yPos + (Math.random() - 0.5) * 60;  // Pequena variação vertical
+      
+      skill.x = xPos;
+      skill.y = yPos_atual;
       
       desenharSkill(container, skill);
-    });
-  });
+      skillIndex++;
+    }
+  }
 }
 
 function desenharSkillsRadial(container, skills) {
