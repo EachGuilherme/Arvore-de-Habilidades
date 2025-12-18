@@ -27,7 +27,7 @@ const CONFIG = {
     4: 80, // Tier 4 desbloqueia com 80% do Tier 3
     5: 90, // Tier 5 desbloqueia com 90% do Tier 4
   },
-  TP_INICIAL: 100,
+  TP_INICIAL: 100000,
   CANVAS_WIDTH: 2400,
   CANVAS_HEIGHT: 1600,
 };
@@ -85,7 +85,7 @@ function getDescricaoPrereqs(skillId) {
   
   skill.prereqSkills.forEach(id => {
     const req = getSkillPorId(id);
-    if (req) prereqs.push(`📌 ${req.nome}`);
+    if (req) prereqs.push(`📋 ${req.nome}`);
   });
   
   if (skill.prereqTier > -1) {
@@ -105,13 +105,3 @@ function getDescricaoPrereqs(skillId) {
 calcularLayoutAutomatico();
 
 console.log('📚 Arquivo de dados carregado com 60 habilidades!');
-
-module.exports = {
-  HABILIDADES,
-  CONFIG,
-  getSkillsPorTier,
-  getSkillPorId,
-  getQtdDesbloqueadasPorTier,
-  getPercentualTier,
-  getDescricaoPrereqs,
-};
