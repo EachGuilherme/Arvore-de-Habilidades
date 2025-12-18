@@ -1,3 +1,6 @@
+// Sistema de Save - Versão Browser
+// Não usar CommonJS, apenas globals
+
 class SistemaSave {
   constructor() {
     this.CHAVE_DADOS = 'arvore_habilidades_save';
@@ -99,7 +102,7 @@ class SistemaSave {
     link.download = `arvore-habilidades-backup-${Date.now()}.json`;
     link.click();
     
-    console.log('📥 Backup exportado!');
+    console.log('📅 Backup exportado!');
   }
 
   importarBackup(arquivoJSON) {
@@ -109,7 +112,7 @@ class SistemaSave {
       leitor.onload = (evento) => {
         const dados = JSON.parse(evento.target.result);
         localStorage.setItem(this.CHAVE_DADOS, JSON.stringify(dados));
-        console.log('📤 Backup importado com sucesso!');
+        console.log('📄 Backup importado com sucesso!');
         window.location.reload();
       };
 
