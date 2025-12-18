@@ -121,7 +121,7 @@ function desenharSkillsArvoreGalhos(container, skills) {
   const centerX = CONFIG.CANVAS_WIDTH / 2;
   const centerY = CONFIG.CANVAS_HEIGHT - 200;  // Começa bem embaixo
   
-  // Raiz no centro embaixo
+  // Raíz no centro embaixo
   const raizSkill = skills[0];
   if (raizSkill) {
     raizSkill.x = centerX;
@@ -156,7 +156,7 @@ function desenharSkillsArvoreGalhos(container, skills) {
       
       // Distribuição horizontal NÃO-LINEAR
       // Usa seno para criar padrão mais orgânico (menos linear)
-      const posicaoRelativa = (i / (skillsNestaCamata - 1)) * 2 - 1;  // -1 a 1
+      const posicaoRelativa = (i / (skillsNestaCamada - 1)) * 2 - 1;  // -1 a 1
       const sinValor = Math.sin(posicaoRelativa * anguloMax);
       
       // Adiciona aleatoriedade pequena para parecer mais natural
