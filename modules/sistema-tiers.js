@@ -45,11 +45,15 @@ class SistemaTiers {
   getProximoTierParaDesbloquear() {
     for (let i = 0; i < this.config.TIERS_TOTAL; i++) {
       if (!this.isTierDesbloqueado(i)) {
+        const tierAnterior = i - 1;
+        const percentualRequerido = this.config.TIER_UNLOCK_PERCENTAGES[i];
+        const percentualAtual = this.getProgressoTier(tierAnterior).percentual;
+        
         return {
           tier: i,
-          proximoDesbloqueio: i - 1,
-          percentualRequerido: this.config.TIER_UNLOCK_PERCENTAGES[proximo.tier],
-          percentualAtual: this.getProgressoTier(i - 1).percentual
+          proximoDesbloqueio: tierAnterior,
+          percentualRequerido: percentualRequerido,
+          percentualAtual: percentualAtual
         };
       }
     }
@@ -71,7 +75,7 @@ class SistemaTiers {
 
     const proximo = this.getProximoTierParaDesbloquear();
     if (proximo) {
-      resumo += `\n⚡ Próximo Tier (${proximo.tier}) em: ${(100 - proximo.percentualAtual).toFixed(1)}%\n`;
+      resumo += `\n⚡ Próximo Tier (${proximo.tier}) em: ${(proximo.percentualRequerido - parseFloat(proximo.percentualAtual)).toFixed(1)}%\n`;
     } else {
       resumo += '\n🌟 Todos os Tiers desbloqueados!\n';
     }
