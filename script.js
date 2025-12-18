@@ -124,15 +124,16 @@ function desenharSkillsExplosivo(container, skills) {
   // Parâmetros de expansão
   const raioBase = 100;           // Início mais próximo do centro
   const raioIncremento = 140;     // Maior espaçamento entre anéis
-  const skillsPorNivel = 3;        // 3 skills por anel (mais orgorgânico)
+  const skillsPorNivel = 3;       // 3 skills por anel (mais orgânico)
   const offsetRotacao = Math.PI / 3;  // Rotação entre anéis para parecer explosivo
   
-  // Agrupar skills por nível
+  // Agrupar skills por nível - CORRETO
   const niveis = {};
   skills.forEach((skill, indice) => {
     const nivel = Math.floor(indice / skillsPorNivel);
-    if (!niveis[nivel]) niveis[nivel] = [];
-    niveis[niveis[nivel]] = skill;
+    if (!niveis[nivel]) {
+      niveis[nivel] = [];
+    }
     niveis[nivel].push(skill);
   });
   
