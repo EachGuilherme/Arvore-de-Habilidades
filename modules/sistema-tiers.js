@@ -1,4 +1,5 @@
-const { CONFIG, getSkillsPorTier } = require('../data/habilidades');
+// Sistema de Tiers - Versão Browser
+// Não usar CommonJS, apenas globals
 
 class SistemaTiers {
   constructor() {
@@ -92,4 +93,3 @@ class SistemaTiers {
 }
 
 console.log('📊 Módulo de Tiers carregado!');
-module.exports = { SistemaTiers };
