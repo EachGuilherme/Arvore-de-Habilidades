@@ -1,4 +1,4 @@
-let tpAtual = 100000;
+let tpAtual = CONFIG.TP_INICIAL || 100000;
 let statsJogador = { STR: 0, DEX: 0, CON: 0, WIL: 0, MND: 0, SPI: 0 };
 let sistemaTiers = null;
 let sistemaLocks = null;
@@ -152,7 +152,7 @@ function desenharConexoesTier(container, skills) {
   const centerY = CONFIG.CANVAS_HEIGHT / 2;
 
   skills.forEach(skill => {
-    // Desenhar linhas para o centro (raiz)
+    // Desenhar linhas para o centro (raíz)
     if (skill.id !== 'root') {
       const linha = document.createElementNS('http://www.w3.org/2000/svg', 'line');
       linha.setAttribute('x1', centerX);
