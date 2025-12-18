@@ -1,5 +1,5 @@
-const { getSkillPorId, HABILIDADES } = require('../data/habilidades');
-const { SistemaTiers } = require('./sistema-tiers');
+// Sistema de Locks - Versão Browser
+// Não usar CommonJS, apenas globals
 
 class SistemaLocks {
   constructor(statsJogador, tpAtual) {
@@ -122,4 +122,3 @@ class SistemaLocks {
 }
 
 console.log('🔒 Módulo de Locks carregado!');
-module.exports = { SistemaLocks };
