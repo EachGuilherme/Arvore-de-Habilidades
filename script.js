@@ -116,6 +116,12 @@ function desenharArvore() {
   svg.appendChild(g);
 }
 
+// Função para gerar número pseudo-aleatório baseado em seed
+function seededRandom(seed) {
+  const x = Math.sin(seed) * 10000;
+  return x - Math.floor(x);
+}
+
 // ========== NOVO LAYOUT: ÁRVORE COM GALHOS ORGÂNICOS ==========
 function desenharSkillsArvoreGalhos(container, skills) {
   const centerX = CONFIG.CANVAS_WIDTH / 2;
@@ -156,14 +162,20 @@ function desenharSkillsArvoreGalhos(container, skills) {
       
       // Distribuição horizontal NÃO-LINEAR
       // Usa seno para criar padrão mais orgânico (menos linear)
-      const posicaoRelativa = (i / (skillsNestaCamada - 1)) * 2 - 1;  // -1 a 1
+      const posicaoRelativa = skillsNestaCamada > 1 
+        ? (i / (skillsNestaCamada - 1)) * 2 - 1  // -1 a 1
+        : 0;  // Se só 1 skill, coloca no centro
+      
       const sinValor = Math.sin(posicaoRelativa * anguloMax);
       
-      // Adiciona aleatoriedade pequena para parecer mais natural
-      const ruido = (Math.random() - 0.5) * 50;
+      // Adiciona "ruído" baseado no índice (não Math.random())
+      const seed1 = skillIndex * 12.9898;
+      const seed2 = skillIndex * 78.233;
+      const ruidoX = (seededRandom(seed1) - 0.5) * 50;
+      const ruidoY = (seededRandom(seed2) - 0.5) * 60;
       
-      const xPos = centerX + (sinValor * larguraBase) + ruido;
-      const yPos_atual = yPos + (Math.random() - 0.5) * 60;  // Pequena variação vertical
+      const xPos = centerX + (sinValor * larguraBase) + ruidoX;
+      const yPos_atual = yPos + ruidoY;
       
       skill.x = xPos;
       skill.y = yPos_atual;
