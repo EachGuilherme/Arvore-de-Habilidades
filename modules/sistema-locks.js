@@ -27,7 +27,7 @@ class SistemaLocks {
       return { pode: false, motivo: `❌ Pré-requisitos: ${prereqCheck.detalhes}` };
     }
 
-    const tierCheck = this._verificarPrereqTier(skill.prereqTier);
+    const tierCheck = this._verificarPrereqTier(skill.prereqTier, skill.tier);
     if (!tierCheck.ok) {
       return { pode: false, motivo: `❌ ${tierCheck.detalhes}` };
     }
@@ -65,18 +65,27 @@ class SistemaLocks {
     return { ok: true, detalhes: '' };
   }
 
-  _verificarPrereqTier(tierMinimo) {
+  _verificarPrereqTier(tierMinimo, tierHabilidade) {
+    // Se o pré-requisito é -1, nenhuma verificação de tier é necessária
     if (tierMinimo === -1) return { ok: true, detalhes: '' };
 
     // Verificar se o tier anterior tem a porcentagem de progresso necessária
-    // tierMinimo é o tier que precisa de progresso para desbloquear o próximo tier
-    // NÃO devemos usar isTierDesbloqueado() pois causa confusão
+    // tierMinimo indica qual tier precisa atingir a porcentagem para desbloquear este
     const sistemaTiers = new SistemaTiers();
     const progresso = sistemaTiers.getProgressoTier(tierMinimo);
     
-    const percentualRequerido = sistemaTiers.config.TIER_UNLOCK_PERCENTAGES[tierMinimo + 1];
+    // A porcentagem requerida é determinada pelo tier a ser desbloqueado
+    const percentualRequerido = sistemaTiers.config.TIER_UNLOCK_PERCENTAGES[tierHabilidade];
+    
+    if (!percentualRequerido) {
+      return { ok: true, detalhes: '' };
+    }
+    
     if (parseFloat(progresso.percentual) < percentualRequerido) {
-      return { ok: false, detalhes: `Tier ${tierMinimo} precisa de ${percentualRequerido}% de progresso (atualmente ${progresso.percentual}%)` };
+      return { 
+        ok: false, 
+        detalhes: `Tier ${tierMinimo} precisa de ${percentualRequerido}% de progresso (atualmente ${progresso.percentual}%)` 
+      };
     }
     
     return { ok: true, detalhes: '' };
