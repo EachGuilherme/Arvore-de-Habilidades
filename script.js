@@ -106,8 +106,8 @@ function desenharArvore() {
 
   // Usar layout específico por tier
   if (tierAtual === 0) {
-    // Layout ÁRVORE COM GALHOS para Tier 0
-    desenharSkillsArvoreGalhos(g, skillsDoTier);
+    // Layout CRUZ/ESTRELA para Tier 0 (inspirado no medalão)
+    desenharSkillsCruzEstrela(g, skillsDoTier);
   } else {
     // Layout RADIAL para os outros tiers
     desenharSkillsRadial(g, skillsDoTier);
@@ -122,68 +122,61 @@ function seededRandom(seed) {
   return x - Math.floor(x);
 }
 
-// ========== NOVO LAYOUT: ÁRVORE COM GALHOS ORGÂNICOS ==========
-function desenharSkillsArvoreGalhos(container, skills) {
+// ========== LAYOUT: CRUZ/ESTRELA (INSPIRADO NO MEDALÃO) ==========
+function desenharSkillsCruzEstrela(container, skills) {
   const centerX = CONFIG.CANVAS_WIDTH / 2;
-  const centerY = CONFIG.CANVAS_HEIGHT - 200;  // Começa bem embaixo
+  const centerY = CONFIG.CANVAS_HEIGHT / 2;
   
-  // Raíz no centro embaixo
-  const raizSkill = skills[0];
-  if (raizSkill) {
-    raizSkill.x = centerX;
-    raizSkill.y = centerY;
-    desenharSkill(container, raizSkill);
-  }
+  if (skills.length === 0) return;
   
-  // Distribuir o resto em camadas (como galhos crescendo pra cima)
+  // 1ª Skill: Gema central (como a gema roxa do medalão)
+  const skillCentral = skills[0];
+  skillCentral.x = centerX;
+  skillCentral.y = centerY;
+  desenharSkill(container, skillCentral);
+  
+  // Resto das skills: Distribui em 4 braços (Norte, Sul, Leste, Oeste) + diagonais
   const skillsRestantes = skills.slice(1);
-  const camadas = Math.ceil(Math.sqrt(skillsRestantes.length));
   
-  let skillIndex = 0;
+  // Definir 8 direções (como os pontos da estrela)
+  const direcoes = [
+    { angulo: 0,           nome: 'Leste' },       // 0° (Direita)
+    { angulo: Math.PI/4,   nome: 'Nordeste' },    // 45°
+    { angulo: Math.PI/2,   nome: 'Sul' },         // 90° (Baixo)
+    { angulo: 3*Math.PI/4, nome: 'Sudeste' },     // 135°
+    { angulo: Math.PI,     nome: 'Oeste' },       // 180° (Esquerda)
+    { angulo: 5*Math.PI/4, nome: 'Sudoeste' },    // 225°
+    { angulo: 3*Math.PI/2, nome: 'Norte' },       // 270° (Cima)
+    { angulo: 7*Math.PI/4, nome: 'Noroeste' }     // 315°
+  ];
   
-  for (let camada = 1; camada <= camadas; camada++) {
-    // Quanto mais longe da raiz, mais espaço horizontal
-    const skillsPorCamada = Math.ceil(skillsRestantes.length / camadas);
-    const yPos = centerY - (camada * 280);  // Cada camada sobe 280px
+  // Distribuir skills pelos braços da estrela
+  skillsRestantes.forEach((skill, indice) => {
+    // Determinar qual direção/braço
+    const direcao = direcoes[indice % direcoes.length];
     
-    // Número de skills nesta camada
-    const skillsNestaCamada = Math.min(
-      skillsPorCamada,
-      skillsRestantes.length - skillIndex
-    );
+    // Distância do centro aumenta a cada "camada"
+    const camada = Math.floor(indice / direcoes.length) + 1;
+    const distancia = 180 + (camada * 120);  // Começa em 180px, +120px por camada
     
-    // Largura da distribuição aumenta com as camadas (efeito de expansão)
-    const larguraBase = 300 + (camada * 200);
-    const anguloMax = Math.PI / (camada + 1);  // Diminui ângulo conforme sobe
+    // Adicionar pequena variação para não ficar muito rígido
+    const seed1 = indice * 12.9898;
+    const seed2 = indice * 78.233;
+    const variacaoAngulo = (seededRandom(seed1) - 0.5) * 0.15;  // ±15°
+    const variacaoDistancia = (seededRandom(seed2) - 0.5) * 40;  // ±20px
     
-    for (let i = 0; i < skillsNestaCamada; i++) {
-      const skill = skillsRestantes[skillIndex];
-      if (!skill) break;
-      
-      // Distribuição horizontal NÃO-LINEAR
-      // Usa seno para criar padrão mais orgânico (menos linear)
-      const posicaoRelativa = skillsNestaCamada > 1 
-        ? (i / (skillsNestaCamada - 1)) * 2 - 1  // -1 a 1
-        : 0;  // Se só 1 skill, coloca no centro
-      
-      const sinValor = Math.sin(posicaoRelativa * anguloMax);
-      
-      // Adiciona "ruído" baseado no índice (não Math.random())
-      const seed1 = skillIndex * 12.9898;
-      const seed2 = skillIndex * 78.233;
-      const ruidoX = (seededRandom(seed1) - 0.5) * 50;
-      const ruidoY = (seededRandom(seed2) - 0.5) * 60;
-      
-      const xPos = centerX + (sinValor * larguraBase) + ruidoX;
-      const yPos_atual = yPos + ruidoY;
-      
-      skill.x = xPos;
-      skill.y = yPos_atual;
-      
-      desenharSkill(container, skill);
-      skillIndex++;
-    }
-  }
+    const anguloFinal = direcao.angulo + variacaoAngulo;
+    const distanciaFinal = distancia + variacaoDistancia;
+    
+    // Calcular posição
+    const x = centerX + distanciaFinal * Math.cos(anguloFinal);
+    const y = centerY + distanciaFinal * Math.sin(anguloFinal);
+    
+    skill.x = x;
+    skill.y = y;
+    
+    desenharSkill(container, skill);
+  });
 }
 
 function desenharSkillsRadial(container, skills) {
